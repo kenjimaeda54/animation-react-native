@@ -1,18 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import 'react-native-gesture-handler';
 import { SafeAreaProvider } from "react-native-safe-area-context"
-import SwitchAnimation from './src/screens/Switch.animation';
+import FlatlistHorizontal from './src/screens/FlatlistHorizontal.animation';
 
 
 export default function App() {
-  const [isActive, setIsActive] = useState(false)
-
-  const handlePressSwitch = () => setIsActive(prev => !prev)
 
 
   return (
     <SafeAreaProvider>
-      <SwitchAnimation size={50} isActive={isActive} onPress={handlePressSwitch} />
+      {/* <SwitchAnimation size={50} isActive={isActive} onPress={handlePressSwitch} />*/}
+      <FlatlistHorizontal />
     </SafeAreaProvider>
   )
 }

@@ -25,7 +25,7 @@ const transition: MotiTransitionProp = {
 
 
 export default function SwitchAnimation({ size, isActive, ...rest }: ISwitchAnimationProps) {
-  const trackWidth = size * 2.0
+  const trackWidth = size * 2.3
   const trackHeight = size * 0.5
   const knobSize = size * 0.7
 
@@ -38,34 +38,49 @@ export default function SwitchAnimation({ size, isActive, ...rest }: ISwitchAnim
         animate={{
           backgroundColor: isActive ? colors.active : colors.inactive
         }}
-        style={[styles.viewTrackAnimation, { width: trackWidth, height: trackHeight, borderRadius: size / 2 }]}
+        style={{
+          width: trackWidth,
+          height: trackHeight,
+          backgroundColor: colors.active,
+          borderRadius: 10,
+          justifyContent: "center",
+          alignItems: "center"
 
-      />
-
-      <MotiView
-        transition={transition}
-        animate={{
-          translateX: isActive ? trackWidth / 3 : - trackWidth / 3
         }}
-        style={[styles.button, { width: size, height: size, borderRadius: size / 2 }]}
 
       >
-
         <MotiView
           transition={transition}
           animate={{
-            width: isActive ? 0 : knobSize
+            translateX: isActive ? trackWidth / 3 : -trackWidth / 3
           }}
           style={{
-            height: knobSize,
-            width: knobSize,
-            borderRadius: knobSize / 2,
-            borderWidth: size * 0.1,
-            borderColor: colors.active,
+            width: size * 0.9,
+            height: size * 0.9,
+            backgroundColor: "#FFFFff",
+            borderRadius: size * 0.9 / 2,
+            justifyContent: "center",
+            alignItems: "center"
 
           }}
 
-        />
+        >
+          <MotiView
+            transition={transition}
+            animate={{
+              width: isActive ? 0 : knobSize
+            }}
+            style={{
+              height: knobSize,
+              width: knobSize,
+              borderRadius: knobSize,
+              borderWidth: 4,
+              borderColor: "#000000"
+
+            }}
+
+          />
+        </MotiView>
       </MotiView>
     </Pressable>
   )
@@ -80,13 +95,4 @@ const styles = StyleSheet.create({
     backgroundColor: "#000"
 
   },
-  viewTrackAnimation: {
-    position: "absolute",
-    backgroundColor: colors.active
-  },
-  button: {
-    backgroundColor: "#FFFFFF",
-    justifyContent: "center",
-    alignItems: "center"
-  }
 })
