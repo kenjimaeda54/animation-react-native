@@ -1,7 +1,7 @@
 import React from 'react';
 import 'react-native-gesture-handler';
 import { SafeAreaProvider } from "react-native-safe-area-context"
-import FlatlistHorizontal from './src/screens/FlatlistHorizontal.animation';
+import FlatlistCarousel3d from './src/screens/FlatlistCarrosel3d.animation';
 
 
 export default function App() {
@@ -9,8 +9,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      {/* <SwitchAnimation size={50} isActive={isActive} onPress={handlePressSwitch} />*/}
-      <FlatlistHorizontal />
+      <FlatlistCarousel3d />
     </SafeAreaProvider>
   )
 }

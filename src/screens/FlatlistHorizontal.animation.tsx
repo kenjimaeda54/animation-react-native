@@ -62,7 +62,17 @@ export default function FlatlistHorizontal() {
   //TouchableOpacity e melhor para esse caso de uso sempre prefira ele
   const renderItemThumbNail = ({ item, index }: { item: Photos, index: number }) => {
     return (
-      <TouchableOpacity onPress={() => handleScrool(index)}>
+      <TouchableOpacity style={{
+        elevation: 17,
+        shadowColor: "#000",
+        shadowOffset: {
+          width: 0,
+          height: 7,
+        },
+        shadowOpacity: 0.58,
+        shadowRadius: 16.00,
+
+      }} onPress={() => handleScrool(index)}>
         <Image
           source={{ uri: item.src.portrait }}
           style={{
@@ -73,13 +83,6 @@ export default function FlatlistHorizontal() {
             marginHorizontal: spacing,
             borderWidth: 1,
             borderColor: index === activeIndex ? "#ffffff" : "transparent",
-            shadowColor: "#000",
-            shadowOffset: {
-              width: 0,
-              height: 7,
-            },
-            shadowOpacity: 0.58,
-            shadowRadius: 16.00,
 
           }}
         />
@@ -93,13 +96,22 @@ export default function FlatlistHorizontal() {
       offset: index * width,
       animated: true
     })
-    if (index * (spacing + widthImageThumb) - widthImageThumb / 2 > width / 2) {
+
+    // esse calculo e para saber se o thumbnail esta proximo do final da tela
+    if (index * (widthImageThumb + spacing) - widthImageThumb / 2 > width / 2) {
       thumbNailRef.current?.scrollToOffset({
-        offset: index * (widthImageThumb + spacing) - width / 2 + widthImageThumb / 2,
+        offset: index * (widthImageThumb + spacing) - width / 2 + widthImageThumb / 2,  // vai fazer com que a imagem ande ate a metade do thumb
         animated: true
+
       })
+
     }
+
+
+
+
   }
+
 
 
   //segredo do thumbNail e o estilo dele ser absolute
@@ -110,11 +122,11 @@ export default function FlatlistHorizontal() {
         ref={topRef}
         data={images}
         horizontal
-        onMomentumScrollEnd={(e) => handleScrool(Math.floor(e.nativeEvent.contentOffset.x / width))} // vai dar o index atual
         keyExtractor={item => `${item.id}`}
-        pagingEnabled     //precisa do pagingEnabled
+        pagingEnabled
         renderItem={renderItemImage}
         showsHorizontalScrollIndicator={false}
+        onMomentumScrollEnd={event => handleScrool(Math.floor(event.nativeEvent.contentOffset.x / width))} // quando finalizar o scroll
       />
       <FlatList
         ref={thumbNailRef}
