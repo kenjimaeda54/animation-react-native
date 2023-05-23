@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import { animate } from "framer-motion";
 import { useRef, useState } from "react";
 import { Dimensions, Image, Animated, View, StyleSheet, Text, TouchableOpacity, ViewToken } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
@@ -50,26 +51,27 @@ export default function FlatlistCarousel3d() {
   const scrollX = useRef(new Animated.Value(0)).current
   const refList = useRef<FlatList>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
-  const rotateView = Animated.modulo(Animated.divide(scrollX, width), width) // com modulo eu não vou ter um valor negativo e com divide, 
+  const rotateAnimated = Animated.modulo(Animated.divide(scrollX, width), width)
+  // com modulo eu não vou ter um valor negativo e com divide, 
   // vou didivir animação de acordo com scrollX ou seja quando estiver na metade da tela irei girar a view
 
   function renderItem({ item, index }: { item: string, index: number }) {
     const inputRange = [
       (index - 1) * width, // anterior
-      width * index, // atual
-      (index + 1) * width // next
-    ]
+      width * index, //atual
+      (index + 1) * width, //proxima
 
-    const opacity = scrollX.interpolate({
-      inputRange,
-      outputRange: [0, 1, 0]
-    })
+    ]
 
     const translateY = scrollX.interpolate({
       inputRange,
-      outputRange: [50, 0, 20] // o next sera 20 e o anteior 50, então antes de apareccer sera 50, depois vai pra posição normal e por fim dece pra 20
+      outputRange: [50, 0, 20]
     })
 
+    const opacity = scrollX.interpolate({
+      inputRange,
+      outputRange: [0, 1, 0.5]
+    })
 
 
     return (
@@ -101,6 +103,7 @@ export default function FlatlistCarousel3d() {
       offset: (currentIndex - 1) * width,
       animated: true
     })
+
   }
 
   return (
@@ -127,11 +130,12 @@ export default function FlatlistCarousel3d() {
       {/*precisa de uma view em volta como container, pois e ela que sera 9999 para evitar o percepecitv*/}
       <View style={[styles.content, { zIndex: 99 }]}>
         {content.map((it, index) => {
-          //vai ser mais rapido pois coloquei 0.2 basciamente e 20 por cento antes da tela aparecer
+          //vai ser mais rapido pois coloquei 0.4 basciamente e 40 por cento antes da tela aparecer
           const inputRange = [
-            (index - 0.2) * width, // anterior
-            width * index, // atual
-            (index + 0.2) * width // next
+            (index - 0.4) * width, // anterior
+            width * index, //atual
+            (index + 0.4) * width, //proxima
+
           ]
 
           const opacity = scrollX.interpolate({
@@ -139,9 +143,10 @@ export default function FlatlistCarousel3d() {
             outputRange: [0, 1, 0]
           })
 
-          const rotateContent = scrollX.interpolate({
+          // inputRange trabalha em conjunto com outputRange ou seja nesse caso quando a tela estiver visivel sera 0 e não visivel 90de
+          const rotate = scrollX.interpolate({
             inputRange,
-            outputRange: ["45deg", "0deg", "90deg"]  // inputRange trabalha em conjunto com outputRange ou seja nesse caso quando a tela estiver visivel sera 0 e não visivel 90deg
+            outputRange: ["45deg", "0deg", "90deg"]
           })
 
 
@@ -149,13 +154,15 @@ export default function FlatlistCarousel3d() {
             <Animated.View
               key={it.key}
               style={{
-                opacity,
                 position: "absolute",
-                top: imageHeight - 350, left: 25,
+                opacity,
                 transform: [{
-                  perspective: imageWidth * 4,
-                }, { rotateY: rotateContent }]
+                  perspective: imageWidth * 4
+                },
+                { rotateY: rotate }
 
+                ],
+                top: imageHeight - 350, left: 25,
               }}>
               <Text style={styles.title} >{it.title.toUpperCase()} </Text>
               <Text style={styles.subTitle}  >{it.subTitle} </Text>
@@ -165,28 +172,26 @@ export default function FlatlistCarousel3d() {
         })}
       </View>
       <Animated.View style={[styles.backgroundView, {
-
         width: imageWidth + 25, height: imageHeight + 170, top: imageHeight - 80,
         transform: [
           { perspective: imageWidth * 4 }, // ideia e usar para permitir a scala em z, com ele a imagem ira girar 
           //https://medium.com/swlh/the-heart-of-react-native-transform-e0f4995ebdb6
           {
-            rotateY: rotateView.interpolate({
-              inputRange: [0, 0.5, 1], // quando estiver na metade da tela presente
+            rotateY: rotateAnimated.interpolate({
+              inputRange: [0, 0.5, 1], // casso der erro que não pode ser valor negativo mudar para 1
               outputRange: ["0deg", "90deg", "180deg"]
-
             })
           }
-        ],
+        ]
       }]} />
       <View style={[styles.footer, { width: imageWidth + 60 }]} >
         <TouchableOpacity disabled={currentIndex === 0} onPress={handlePreviousSlider} style={[styles.button, {
-          opacity: currentIndex === 0 ? 0.5 : 1
+          opacity: currentIndex === 0 ? 0.5 : 1,
         }]}>
           <Image source={require("../assets/back.png")} resizeMode="contain" style={styles.imgBack} />
           <Text style={styles.textButton} >Previous </Text>
         </TouchableOpacity>
-        <TouchableOpacity disabled={currentIndex === content.length - 1} onPress={handleNextSlider} style={[styles.button, {
+        <TouchableOpacity disabled={currentIndex === content.length} onPress={handleNextSlider} style={[styles.button, {
           opacity: currentIndex === content.length - 1 ? 0.5 : 1
         }]}>
           <Text style={styles.textButton}   >Next </Text>

@@ -28,7 +28,7 @@ const backgroundImg = "https://images.pexels.com/photos/1231265/pexels-photo-123
 
 
 export default function FlatlistVerticalItemAnimation() {
-  const { top, bottom } = useSafeAreaInsets()
+  const { top } = useSafeAreaInsets()
   const scroolY = useRef(new Animated.Value(0)).current
   const spacing = 20
   const avatarSize = 70
