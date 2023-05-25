@@ -82,9 +82,6 @@ export default function ButtonSheetWithPagination() {
           {product.description.map((it, index) => <Text key={index} style={styles.description}>{it}</Text>)}
           {product.description.map((it, index) => <Text key={index} style={styles.description}>{it}</Text>)}
           {product.description.map((it, index) => <Text key={index} style={styles.description}>{it}</Text>)}
-
-
-
         </BottomSheetScrollView>
       </BottomSheet>
     </View>
