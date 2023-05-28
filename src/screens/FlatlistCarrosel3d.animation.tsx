@@ -1,5 +1,4 @@
 import { faker } from "@faker-js/faker";
-import { animate } from "framer-motion";
 import { useRef, useState } from "react";
 import { Dimensions, Image, Animated, View, StyleSheet, Text, TouchableOpacity, ViewToken } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
