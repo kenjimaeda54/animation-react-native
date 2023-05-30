@@ -11,3 +11,8 @@ export interface SliderDataTropical {
   color: string
 
 }
+
+export interface IRoutesCore {
+  details: { item: DataTropical }
+  home: undefined
+}

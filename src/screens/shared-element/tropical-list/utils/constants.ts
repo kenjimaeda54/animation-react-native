@@ -1,6 +1,5 @@
-
 export class ConstantsRoutes {
-  static home = "/home"
-  static details = "/details"
+  static home = "home"
+  static details = "details"
 
 }
