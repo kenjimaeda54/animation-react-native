@@ -897,8 +897,8 @@ return (
             [{ nativeEvent: { contentOffset: { y: scrollYRef } } }],
             { useNativeDriver: true }
           )}
-          snapToInterval={itemHeight} //intervalo que a imagem vai parar e ideal colocar o uso do decelarationRate
-          bounces={false} // quando chegar no final não ira fazer o efeito de arrastar
+          snapToInterval={itemHeight}
+          bounces={false}
           decelerationRate="fast"
           showsVerticalScrollIndicator={false}
         />
