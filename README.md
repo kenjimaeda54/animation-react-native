@@ -501,7 +501,8 @@ const YoloBackground = ({ scroolX }: PropsScroll) => {
 - Alguns ícones estão com interpolação de animação   opacidade, ou seja, quando a view estiver -30 do tamanho principal e com 1 píxel acima irão mostrar caso a contrário ira sumir
 - Os valores -30 e +1 são flexíveis quanto maiores mais suaves
 - No (bootomActions?.y - height + 60) o mais 60 e flexível e para tentar suprir a correção do tamanho da view
-
+- Então analisando o inputRange esta view animada de fato sera efetiva em dois momentos quando estiver com tamanho da view do onLayout ou seja topEdge é quando estiver 1 pixel acima dela
+- Por isso o tranlateX fica em 0 nesses dois momentos, para que o ícone volta ao seu lugar é exiba os outros ícones com animação de opacidade
 
 ```typescript
 
@@ -548,7 +549,7 @@ const YoloBackground = ({ scroolX }: PropsScroll) => {
               transform: [{
                 translateX: scroolY.interpolate({
                   inputRange,
-                  outputRange: [20, 20, 20, 0, 0]
+                  outputRange: [20, 20, 20, 0, 0] // para entender bem so reapara aqui inputRange [-1, 0, topEdge - 30, topEdge, topEdge + 1]
                 })
 
               }]
