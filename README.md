@@ -213,7 +213,7 @@ Referencia: https://www.youtube.com/watch?v=ZiSN9uik6OY&list=RDCMUCTcH04SRuyedaS
 ```
 
 
-### Sequencia animada
+### Barras de progresso
 - Para realizar aquelas barras de sequência, primeiro pega o tamanho do campo interno, pois sera dinâmico o tamanho do componente
 - Toda vez que mudar o tamanho da largura e a quantidade de passos vou setar o valor do reactive que é uma constante de animação que criei
 - No onLayout ele pega o tamanho da view apenas uma vez
@@ -372,6 +372,7 @@ viewWithBorder: {
 - Ideia e descobrir ao scrollar o final, inicio é quando estiver no meio, essa view fica no fundo, a parte de cima, com efeito, circular
 - Quando a tela estiver na metade esse background ira sumir 
 - Quando animação não se comportar da maneira que deseja tenta usar o extrapolate
+- Ideal e centralizar a imagem verticalmente e horizontalmente
 
 ```typescript
 
@@ -488,6 +489,100 @@ const YoloBackground = ({ scroolX }: PropsScroll) => {
 
 
 ```
+
+### Stick Rodape
+- A ideia e deixar fotter  presso em baixo é quando atingir um certo ponto ela ira se mover com layout
+- Para fazer esse efeito colocamos uma view com o mesmo estilo da view animada
+- Quando atingir a view pressa o onLayout ira mudar é setar o bottomActions 
+- Quando o bottomAcitions não for mais nullo ira setar uma view animada, que ocupara o mesmo espaço da view que preparamos para pegar o onLayout
+- BottomAction ao ser setado ele ficara com o tamanho da view que esta no onLayout
+- InputRange a lógica e simples, primeiro se a view não estiver visível com -1, depois se estiver no estado normal 0, para gerar um efeito suave, estamos também pegando -30 do tamanho da view principal, depois o tamanho todo da view principal e por fim pegando mais 1 da view principal
+- Repara que interpelote novamente segue mesmo conceito, no caso da view principal footerScrool, outputRange só sera -1 quando estiver 1 píxel acima da view principal, restante deveria mostrar, porem o buttomActions sera nullo então não ira mostrar
+- Alguns ícones estão com interpolação de animação   opacidade, ou seja, quando a view estiver -30 do tamanho principal e com 1 píxel acima irão mostrar caso a contrário ira sumir
+- Os valores -30 e +1 são flexíveis quanto maiores mais suaves
+- No (bootomActions?.y - height + 60) o mais 60 e flexível e para tentar suprir a correção do tamanho da view
+
+
+```typescript
+
+  const topEdge = bootomActions !== null ? (bootomActions?.y - height + 60) + bootomActions?.height : 0
+
+ 
+  const inputRange = [-1, 0, topEdge - 30, topEdge, topEdge + 1]
+
+ <View onLayout={event => setBootomActions(event.nativeEvent.layout)} style={[styles.footerScrool]} />
+
+  {bootomActions !== null &&
+        <Animated.View style={[styles.footerScrool, {
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          transform: [{
+            translateY: scroolY.interpolate({
+              inputRange,
+              outputRange: [0, 0, 0, 0, -1]
+            })
+          }]
+        }]}>
+          <View style={styles.rowFooter}>
+            <Image source={require("../assets/heart.png")} style={styles.icon} resizeMode="contain" />
+            <Animated.Text
+              style={{
+                opacity: scroolY.interpolate({
+                  inputRange,
+                  outputRange: [0, 0, 0, 1, 1]
+                })
+              }}
+
+            > 306 </Animated.Text>
+          </View>
+          <View style={styles.rowFooter}>
+            <Animated.Image source={require("../assets/share.png")} style={[styles.icon, {
+              opacity: scroolY.interpolate({
+                inputRange,
+                outputRange: [0, 0, 0, 1, 1]
+              })
+            }]} resizeMode="contain" />
+            <Animated.Image source={require("../assets/cifrao.png")} style={[styles.icon, {
+              transform: [{
+                translateX: scroolY.interpolate({
+                  inputRange,
+                  outputRange: [20, 20, 20, 0, 0]
+                })
+
+              }]
+            }]} resizeMode="contain" />
+            <Animated.Image source={require("../assets/export.png")} style={[styles.icon, {
+              opacity: scroolY.interpolate({
+                inputRange,
+                outputRange: [0, 0, 0, 1, 1]
+              })
+
+            }]} resizeMode="contain" />
+          </View>
+
+        </Animated.View>
+
+      }
+
+
+//styles
+
+  footerScrool: {
+    flexDirection: "row",
+    backgroundColor: "white",
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    justifyContent: "space-between",
+    alignItems: "center",
+    height: 60,
+  },
+
+
+```
+
+
 
 
 
