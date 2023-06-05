@@ -593,10 +593,10 @@ const YoloBackground = ({ scroolX }: PropsScroll) => {
 ```typescript
   function renderItem({ item, index }: { item: IDataProps, index: number }) {
     const inputRange = [
-      -1, // não faz nada
-      0, // não faz nada
-      itemSize * index,   // começa 
-      itemSize * (index + 2) // finaliza
+      -1,  
+      0, 
+      itemSize * index,    
+      itemSize * (index + 2)  
     ]
 
     const opactiyInputRange = [
