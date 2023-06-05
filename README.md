@@ -857,5 +857,115 @@ export default function FlatlistHorizontal() {
  
  ```
 
+### Bootom Sheet 
+- Ideia e conseguir arrastar o conteúdo para parte de cima,tipico instragam
+- Para realizar esse efeito usei [bottom-shet](https://www.npmjs.com/package/@gorhom/bottom-sheet)
+- Para flatlist não ocupar toda a tela, forcei com uma view em volta
+- SnapInterval e ideal para que a flatlist ao realizar scroll pare exatamente sempre em um item, neste caso trabalhei em conjunto com decelerationRate
+- Para gerar o overlay sobre os dots usei o divide, pequei o scrollY é divide pelo tamanho do renderItem da flatlist, o tamanho dela no meu casso e o itemHeight 
+- Bottomsheet e obrigatório dois parâmetros o index  é  snapoints, nesste caso foi o tamanho da tela menos o tamanho do renderItem da flatlist  e altura toda da tela
+- Resumidamente quando ele começa em abaixo da imagem é quando é arrastado fica na tela toda
+
+
+
+```typescript
+const { width, height } = Dimensions.get("window")
+
+const itemWidth = width
+const itemHeight = height * 0.70
+
+const sizeDot = 8;
+const spacingDot = 8;
+
+const sizeOverlay = sizeDot + spacingDot
+
+export default function ButtonSheetWithPagination() {
+
+
+return (
+
+
+  function handleItem({ item }: { item: string }) {
+    return <Image source={{ uri: item }} resizeMode="cover" style={styles.image} />
+  }
+
+ <View style={{ height: itemHeight, position: "relative" }} >
+        <Animated.FlatList
+          data={images}
+          renderItem={handleItem}
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { y: scrollYRef } } }],
+            { useNativeDriver: true }
+          )}
+          snapToInterval={itemHeight} //intervalo que a imagem vai parar e ideal colocar o uso do decelarationRate
+          bounces={false} // quando chegar no final não ira fazer o efeito de arrastar
+          decelerationRate="fast"
+          showsVerticalScrollIndicator={false}
+        />
+      </View>
+
+ <View style={styles.pagination}>
+        {images.map((_, index) =>
+          <View key={index} style={styles.dot} />
+        )}
+        <Animated.View style={[styles.overlay, {
+          transform: [{
+            translateY: Animated.divide(scrollYRef, itemHeight).interpolate({
+              inputRange: [0, 1],
+              outputRange: [0, sizeOverlay + 8]
+            })
+          }]
+        }]} />
+      </View>
+
+ <BottomSheet
+        index={0}
+        snapPoints={[height - itemHeight, height]}
+      >
+        <BottomSheetScrollView contentContainerStyle={{
+          paddingHorizontal: 30,
+          paddingVertical: 35,
+        }} style={{ backgroundColor: "white" }}>
+          <Text style={styles.title}>{product.title}</Text>
+          <Text style={styles.title}>{product.price}</Text>
+          {product.description.map((it, index) => <Text key={index} style={styles.description}>{it}</Text>)}
+          {product.description.map((it, index) => <Text key={index} style={styles.description}>{it}</Text>)}
+          {product.description.map((it, index) => <Text key={index} style={styles.description}>{it}</Text>)}
+          {product.description.map((it, index) => <Text key={index} style={styles.description}>{it}</Text>)}
+        </BottomSheetScrollView>
+      </BottomSheet>
+
+
+)
+
+
+//style
+
+  pagination: {
+    position: "absolute",
+    top: itemHeight / 2,
+    left: 20,
+  },
+  dot: {
+    height: sizeDot,
+    width: sizeDot,
+    borderRadius: sizeDot / 2,
+    backgroundColor: "#353839",
+    marginVertical: spacingDot,
+  },
+  overlay: {
+    width: sizeOverlay,
+    height: sizeOverlay,
+    borderRadius: sizeOverlay / 2,
+    borderWidth: 1,
+    borderColor: "#414a4c",
+    position: "absolute",
+    top: -sizeDot / 2 + spacingDot,
+    left: -sizeDot / 2,
+  },
+
+}
+
+```
 
 
