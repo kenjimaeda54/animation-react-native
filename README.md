@@ -584,7 +584,278 @@ const YoloBackground = ({ scroolX }: PropsScroll) => {
 ```
 
 
+### Scroll Vertical sumindo aos poucos o conteudo na parte superior
+- Para realizar essa animação trabalhei com scale e  opacidade
+- Segredo e diminuir a escala um pouco antes do scroll finalizar, ou seja, o tamanho do card versus o index mais algum valor
+- Usei 0.5, pois com esse valor ficaria a metade
 
+
+```typescript
+  function renderItem({ item, index }: { item: IDataProps, index: number }) {
+    const inputRange = [
+      -1, // não faz nada
+      0, // não faz nada
+      itemSize * index,   // começa 
+      itemSize * (index + 2) // finaliza
+    ]
+
+    const opactiyInputRange = [
+      -1,
+      0,
+      itemSize * index,
+      itemSize * (index + 0.5)
+    ]
+
+    const scale = scroolY.interpolate({
+      inputRange,
+      outputRange: [1, 1, 1, 0]
+    })
+
+
+
+    const opacity = scroolY.interpolate({
+      inputRange: opactiyInputRange,
+      outputRange: [1, 1, 1, 0]
+    })
+
+
+    return (
+      <Animated.View style={[styles.containerItem, { marginBottom: spacing, transform: [{ scale }], opacity }]}>
+        <Image
+          source={{ uri: item.image }}
+          resizeMode="contain"
+          style={{
+            height: avatarSize,
+            width: avatarSize,
+            borderRadius: avatarSize / 2,
+          }}
+
+        />
+        <View style={styles.content}>
+          <Text style={styles.name} >{item.name}</Text>
+          <Text style={styles.email} >{item.email}</Text>
+          <Text style={styles.job} >{item.jobTitle}</Text>
+        </View>
+      </Animated.View>
+
+    )
+  }
+  
+  //para dar efeito de blur
+   <Image
+        source={{ uri: backgroundImg }}
+        style={StyleSheet.absoluteFillObject} // para couber certinho no fundo
+        blurRadius={25}
+      />
+
+
+````
+
+### Imagem principal com thumbnail em baixo
+- Para realizar esa animação usei duas Flatlist uma que imagem cobre a tela toda é outra thumbnail
+- Na thumbnail a ideia e o carrossel sempre pare com a imagem na metade então fiz uma lógica com seu ref
+
+
+
+
+```typescript
+
+const { width, height } = Dimensions.get("window")
+
+export default function FlatlistHorizontal() { 
+  const [activeIndex, setActiveIndex] = useState(0)
+  const topRef = useRef<FlatList>(null)
+  const thumbNailRef = useRef<FlatList>(null)
+  const heigthImageThumb = 60
+  const widthImageThumb = 60
+  const spacing = 5
+  
+     
+   function handleScrool(index: number) {
+    setActiveIndex(index)
+    topRef.current?.scrollToOffset({
+      offset: index * width,
+      animated: true
+    })
+
+    if (index * (widthImageThumb + spacing) - widthImageThumb / 2 > width / 2) {
+      thumbNailRef.current?.scrollToOffset({
+        offset: index * (widthImageThumb + spacing) - width / 2 + widthImageThumb / 2, 
+        animated: true
+
+      })
+
+    }
+  }  
+     
+     
+  return (
+    <View style={styles.container} >
+      <FlatList
+        ref={topRef}
+        data={images}
+        horizontal
+        keyExtractor={item => `${item.id}`}
+        pagingEnabled
+        renderItem={renderItemImage}
+        showsHorizontalScrollIndicator={false}
+        onMomentumScrollEnd={event => handleScrool(Math.floor(event.nativeEvent.contentOffset.x / width))} 
+      />
+      <FlatList
+        ref={thumbNailRef}
+        data={images}
+        horizontal
+        style={{
+          position: "absolute",
+          bottom: heigthImageThumb,
+          paddingHorizontal: spacing,
+        }}
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={item => `${item.id}`}
+        renderItem={renderItemThumbNail}
+      />
+    </View>
+  )
+
+}
+```
+
+### Carousel 3d animado
+- Essa animação trabalhei com vários conceitos, para lidar com rotação usei modulo assim consigo 0,0.5 e 1
+- Quando scrollar a imagem é girar, a tendência e que a imagem fica sobressaindo nas outras que estão atrás, aplicando um zIndex resolvemos o casso
+- Eu separei o conteúdo do fundo branco que ficam atrás, ambos iram girar. View que possui o conteúdo preciso também um zIndex
+- Sempre que for usar esse conceito de girar usamos perpective, ela vai permitir uma escala em z [perspective](https://medium.com/swlh/the-heart-of-react-native-transform-e0f4995ebdb6)  
+- O contêiner branco fica com os botoes 
+- Para navegar de um slider para outro pelos botoes usamos o ref
+ 
+ ```typescript 
+ 
+ export default function FlatlistCarousel3d() {
+  const { top } = useSafeAreaInsets()
+  const scrollX = useRef(new Animated.Value(0)).current
+  const refList = useRef<FlatList>(null)
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const rotateAnimated = Animated.modulo(Animated.divide(scrollX, width), width)
+ 
+  const handleIndex = useRef((info: ViewSlider) => {
+    const infoIndex = info.viewableItems[0].index!
+    setCurrentIndex(infoIndex)
+  })
+
+  function handleNextSlider() {
+    refList.current?.scrollToOffset({
+      offset: (currentIndex + 1) * width,
+      animated: true
+    })
+  }
+
+  function handlePreviousSlider() {
+    refList.current?.scrollToOffset({
+      offset: (currentIndex - 1) * width,
+      animated: true
+    })
+
+  }
+ 
+ 
+  return (
+    <View style={styles.container}>
+      <Animated.FlatList
+        ref={refList}
+        data={images}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+          { useNativeDriver: true }
+        )}
+        contentContainerStyle={{
+          height: 100,
+        }}
+        pagingEnabled
+        horizontal
+        style={{ zIndex: 9999 }} 
+        showsHorizontalScrollIndicator={false}
+        onViewableItemsChanged={handleIndex.current}
+        keyExtractor={(_, index) => `${index}`}
+        renderItem={renderItem}
+      />
+
+     
+      <View style={[styles.content, { zIndex: 99 }]}>
+        {content.map((it, index) => {
+          const inputRange = [
+            (index - 0.4) * width,  
+            width * index, 
+            (index + 0.4) * width,  
+
+          ]
+
+          const opacity = scrollX.interpolate({
+            inputRange,
+            outputRange: [0, 1, 0]
+          })
+
+          
+          const rotate = scrollX.interpolate({
+            inputRange,
+            outputRange: ["45deg", "0deg", "90deg"]
+          })
+
+
+          return (
+            <Animated.View
+              key={it.key}
+              style={{
+                position: "absolute",
+                opacity,
+                transform: [{
+                  perspective: imageWidth * 4
+                },
+                { rotateY: rotate }
+
+                ],
+                top: imageHeight - 350, left: 25,
+              }}>
+              <Text style={styles.title} >{it.title.toUpperCase()} </Text>
+              <Text style={styles.subTitle}  >{it.subTitle} </Text>
+              <Text style={styles.price}   >{it.price} USD </Text>
+            </Animated.View>
+          )
+        })}
+      </View>
+      <Animated.View style={[styles.backgroundView, {
+        width: imageWidth + 25, height: imageHeight + 170, top: imageHeight - 80,
+        transform: [
+          { perspective: imageWidth * 4 }, 
+          {
+            rotateY: rotateAnimated.interpolate({
+              inputRange: [0, 0.5, 1],  
+              outputRange: ["0deg", "90deg", "180deg"]
+            })
+          }
+        ]
+      }]} />
+      <View style={[styles.footer, { width: imageWidth + 60 }]} >
+        <TouchableOpacity disabled={currentIndex === 0} onPress={handlePreviousSlider} style={[styles.button, {
+          opacity: currentIndex === 0 ? 0.5 : 1,
+        }]}>
+          <Image source={require("../assets/back.png")} resizeMode="contain" style={styles.imgBack} />
+          <Text style={styles.textButton} >Previous </Text>
+        </TouchableOpacity>
+        <TouchableOpacity disabled={currentIndex === content.length} onPress={handleNextSlider} style={[styles.button, {
+          opacity: currentIndex === content.length - 1 ? 0.5 : 1
+        }]}>
+          <Text style={styles.textButton}   >Next </Text>
+          <Image source={require("../assets/next.png")} resizeMode="contain" style={styles.imgBack} />
+        </TouchableOpacity>
+      </View>
+    </View>
+  )
+  
+}
+ 
+ 
+ 
+ ```
 
 
 
