@@ -1,5 +1,6 @@
 # Animação
-Repositório com várias animações em React Native
+Repositório com várias animações em React Native. </br>
+Referencia: https://www.youtube.com/watch?v=ZiSN9uik6OY&list=RDCMUCTcH04SRuyedaSuuQVeAcdg&start_radio=1&rv=ZiSN9uik6OY&t=0
 
 ## Feature
 ### Tempo Animado
