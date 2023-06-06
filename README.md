@@ -968,4 +968,128 @@ return (
 
 ```
 
+### Shared Element parte Tropical List
+- Para lidar com shared element usei [react navigation shared elemenet](https://www.npmjs.com/package/react-navigation-shared-element)
+- Basicamente envolvo o elemento quero navega para próxima tela com um id especifico, este elemento precisa está presente na outra tela
+- Nesta tela que vai recebe o id tem algumas abordagens, utilizado foi estatico  que é automático após criar uma tela com react navigation shared element
+- Repara que tela Details tem o método sharedElements, se a tela fosse DetailsScreen,seria DetailsScreen.sharedElement
+- Para carosel acima fica na posição correta usei useEffect, assim que a tela é montada uso o Animated.parallel é faço scroll no eixo x ate o ícone   corresponde ao conteúdo abaixo
+- Repara que uso o tamanho do animationIcon no interpolate do translateX, seria o tamanho do espaço entre os ícones, tamanho do ícone é multiplicado por 2, pois considero os dois lados
+- A flatlist abaixo ira sempre iniciar no index que foi clicado conforme o ícone da tela anterior pela propriedade initialScrollIndex, para conseguirmos scrollar ela ate o ponto desejado e bom usar o getItemLayout
 
+```typescript
+// tela de origem
+// HomeScreen
+
+export function HomeScreen() {
+
+
+  return (
+      <View style={styles.contentImg}>
+        {dataTropical.map(it =>
+          <SharedElement key={it.id} id={`${it.id}.photo`} >
+            <TouchableOpacity onPress={() => handleNavigation(it)} style={styles.imgView}>
+              <Image source={it.image} style={styles.img} />
+            </TouchableOpacity>
+          </SharedElement>
+        )}
+      </View>
+  )
+
+}
+
+// tela destino
+const Details = () => {
+ const { goBack } = useNavigation()
+  const flatlistScrollRef = useRef<FlatList>(null)
+  const { top } = useSafeAreaInsets()
+  const { params } = useRoute<RouteProp<ParamList, 'Details'>>()
+  const findSelectedIndex = dataTropical.findIndex(it => params?.item.id === it.id)
+  const mountedAnimated = useRef(new Animated.Value(0)).current
+  const activeIndex = useRef(new Animated.Value(findSelectedIndex)).current
+  const animatedIndex = useRef(new Animated.Value(findSelectedIndex)).current
+
+ useEffect(() => {
+
+    Animated.parallel([
+      Animated.timing(animatedIndex, {
+        toValue: activeIndex,
+        duration: 500,
+        useNativeDriver: true
+      }),
+      animation(1, 300)
+    ]).start()
+
+
+  })
+
+  const translateX = animatedIndex.interpolate({
+    inputRange: [-1, 0, 1],
+    outputRange: [animationIcon, 0, -animationIcon],
+
+
+  })
+  
+   function handleListHeader(index: number) {
+    activeIndex.setValue(index)
+
+    flatlistScrollRef.current?.scrollToIndex({
+      index,
+      animated: true,
+    })
+
+  }
+
+  return (
+     <ScrollView
+        bounces={false}
+        showsHorizontalScrollIndicator={false}
+        horizontal >
+        <Animated.View style={[styles.contentImg, { transform: [{ translateX }] }]} >
+          {dataTropical.map((item, index) => {
+            const inputRange = [index - 1, index, index + 1]
+            const opacity = activeIndex.interpolate({
+              inputRange,
+              outputRange: [0.5, 1, 0.5],
+              extrapolate: "clamp"
+            })
+            return (
+              <Animated.View style={[styles.content, { opacity }]} key={item.id} >
+                <SharedElement id={`${item.id}.photo`}>
+                  <TouchableOpacity onPress={() => handleListHeader(index)} style={styles.viewImg}>
+                    <Image style={styles.img} resizeMode="center" source={item.image} />
+                  </TouchableOpacity>
+                </SharedElement>
+                <Text style={styles.titleSlider}>{item.title}</Text>
+              </Animated.View >
+            )
+          })}
+        </Animated.View>
+       </ScrollView>
+        <Animated.View style={[styles.contentImg, { transform: [{ translateX }] }]} >
+          {dataTropical.map((item, index) => {
+            const inputRange = [index - 1, index, index + 1]
+            const opacity = activeIndex.interpolate({
+              inputRange,
+              outputRange: [0.5, 1, 0.5],
+              extrapolate: "clamp"
+            })
+            return (
+              <Animated.View style={[styles.content, { opacity }]} key={item.id} >
+                <SharedElement id={`${item.id}.photo`}>
+                  <TouchableOpacity onPress={() => handleListHeader(index)} style={styles.viewImg}>
+                    <Image style={styles.img} resizeMode="center" source={item.image} />
+                  </TouchableOpacity>
+                </SharedElement>
+                <Text style={styles.titleSlider}>{item.title}</Text>
+              </Animated.View >
+            )
+          })}
+        </Animated.View>
+   
+  )
+
+}
+
+Details.sharedElements = () => dataTropical.map(it => `${it.id}.photo`)
+```
