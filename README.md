@@ -1093,3 +1093,75 @@ const Details = () => {
 
 Details.sharedElements = () => dataTropical.map(it => `${it.id}.photo`)
 ```
+
+
+### Shared Element Travel List 
+- Única coisa nova que aprendi em relação aos anteriores foram usar dois ids para outra tela
+- SharedElement renderiza como uma view então se depende de algum estilo precisa aplicar, exemplo na outra tela, precisei usar zIndex -1 e o absoluteFillObject
+- Sem esses dois estilos não mostrava a imagem ou renderizava conforme esperado
+
+
+
+
+```typescript
+
+
+// tela destino
+export default function HomeScreen() {
+
+
+  return (
+    
+
+      <TouchableOpacity activeOpacity={0.9} onPress={() => navigate("details", { item })} >
+        <View style={styles.viewImg}>
+          <SharedElement id={`${item.key}.photo`}>
+            <Animated.Image source={{ uri: item.image }} style={[styles.img, { transform: [{ scale }] }]} />
+          </SharedElement>
+        </View>
+        <SharedElement style={styles.locationText} id={`${item.key}.location`} >
+          <Animated.Text style={[styles.locationText, { transform: [{ translateX }] }]}>{item.location}</Animated.Text>
+        </SharedElement>
+        <View style={styles.viewDays} >
+          <Text style={styles.numberDays}>{item.numberOfDays}</Text>
+          <Text style={styles.numberDays}>days</Text>
+        </View>
+      </TouchableOpacity>
+ 
+   )
+
+}
+
+
+// tela de details
+const DetailsScreen = () => {
+
+
+ return (
+    <SafeAreaView style={{ flex: 1 }}>
+      <SharedElement id={`${params.item.key}.photo`} style={[StyleSheet.absoluteFillObject, { zIndex: -1 }]} >
+        <Image
+          style={[StyleSheet.absoluteFillObject]}
+          source={{ uri: params.item.image }}
+        />
+      </SharedElement>
+      <SharedElement style={[styles.locationText,]} id={`${params.item.key}.location`}>
+        <Text style={[styles.locationText, { marginTop: top + 20 }]} >{params.item.location}</Text>
+      </SharedElement>
+    </SafeAreaView>
+  )
+
+
+DetailsScreen.sharedElements = (route: RouteProp<ParamList, "DetailsScreen">) => {
+  const { params } = route
+
+  return [{ id: `${params.item.key}.photo` }, { id: `${params.item.key}.location` }]
+
+   }
+
+}
+
+
+```
+
+
