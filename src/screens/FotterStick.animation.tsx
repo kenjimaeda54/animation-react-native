@@ -31,7 +31,7 @@ export default function FooterStick() {
   //topEdge - 30 e a quantidade de pixel ou seja -30 do topo, quanto maior mais suave
   const inputRange = [-1, 0, topEdge - 30, topEdge, topEdge + 1]
 
-  console.log(topEdge)
+
 
   return (
     <>

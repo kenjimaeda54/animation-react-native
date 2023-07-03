@@ -1,6 +1,6 @@
 import { View } from "moti"
 import { useEffect, useRef, useState } from "react"
-import { Dimensions, FlatList, Image, TouchableOpacity, StyleSheet } from "react-native"
+import { Dimensions, FlatList, Image, TouchableOpacity, StyleSheet, Text } from "react-native"
 import { apiKey } from "../../utils/key_api"
 import { IPexelApi, Photos } from "../../utils/types"
 
@@ -41,7 +41,7 @@ export default function FlatlistHorizontal() {
 
 
   if (images.length === 0) {
-    return false
+    return <Text>Não tem</Text>
   }
 
   const renderItemImage = ({ item }: { item: Photos }) => {

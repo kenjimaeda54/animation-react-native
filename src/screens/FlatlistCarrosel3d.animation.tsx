@@ -56,9 +56,9 @@ export default function FlatlistCarousel3d() {
 
   function renderItem({ item, index }: { item: string, index: number }) {
     const inputRange = [
-      (index - 1) * width, // anterior
-      width * index, //atual
-      (index + 1) * width, //proxima
+      (index - 1) * width,
+      width * index,
+      (index + 1) * width,
 
     ]
 
